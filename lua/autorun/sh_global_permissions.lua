@@ -1,13 +1,15 @@
 -------------------------------------------
 ------------ Global Permissions -----------
 -------------------------------------------
---     https://pastebin.com/nmgjwBVP     --
--------------------------------------------
 -- sh_permissions.lua             SHARED --
 --                                       --
 -- Set up permissions for multiple Gmod  --
 -- moderation systems.                   --
 -------------------------------------------
+
+-- Get the most up-to-date version from GitHub:
+-- https://github.com/MyHatStinks/gmod-global-permissions
+
 
 ------------------------
 -- Set up permissions --
