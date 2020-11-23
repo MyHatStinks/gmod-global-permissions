@@ -60,10 +60,10 @@ end
 ---------- You shouldn't need to edit below this line ----------
 
 
-
 -- This number will be incremented when a new permissions system is added
 -- Should help keep compatibility with other addons using this code
-local version = 1.0
+-- Format YYYYMMDD.revision
+local version = 20201119.0
 if GlobalPermissions and GlobalPermissions.Version>=version then return end -- Only overwrite if this is newer
 
 GlobalPermissions = GlobalPermissions or {}
@@ -79,6 +79,8 @@ GlobalPermissions.GROUP_ALL        = 2
 ------------------------
 
 function GlobalPermissions.SetupPermission( Permission, DefaultGroup, Help, Cat )
+	hook.Run( "Permission.SetUp", Permission, DefaultGroup, Help, Cat )
+	
 	-- ULX
 	if ULib and ULib.ucl then
 		if ULib.ucl.registerAccess then
@@ -111,6 +113,11 @@ function GlobalPermissions.SetupPermission( Permission, DefaultGroup, Help, Cat 
 end
 function GlobalPermissions.HasPermission( ply, Permission, Default )
 	if not IsValid(ply) then return Default end
+	
+	local hasPermission = hook.Run( "Permission.HasPermission", ply, Permission, Default )
+	if hasPermission~=nil then
+		return hasPermission
+	end
 	
 	-- ULX
 	if ULib then
