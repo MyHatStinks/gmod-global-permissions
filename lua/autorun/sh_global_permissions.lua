@@ -17,7 +17,7 @@
 -- This number will be incremented when a new permissions system is added
 -- Should help keep compatibility with other addons using this code
 -- Format YYYYMMDD.revision
-local version = 20201123.0
+local version = 20201123.1
 if GlobalPermissions and GlobalPermissions.Version>=version then return end -- Only overwrite if this is newer
 
 GlobalPermissions = GlobalPermissions or {}
@@ -27,6 +27,7 @@ GlobalPermissions.Version = version
 GlobalPermissions.GROUP_SUPERADMIN = 0
 GlobalPermissions.GROUP_ADMIN      = 1
 GlobalPermissions.GROUP_ALL        = 2
+
 
 ------------------------
 -- Set up permissions --
@@ -65,6 +66,12 @@ function GlobalPermissions.SetupPermission( Permission, DefaultGroup, Help, Cat 
 		return
 	end
 end
+
+
+-----------------------
+-- Check permissions --
+-----------------------
+
 function GlobalPermissions.HasPermission( ply, Permission, Default )
 	if not IsValid(ply) then return Default end
 	
@@ -98,6 +105,44 @@ function GlobalPermissions.HasPermission( ply, Permission, Default )
 end
 
 
+----------------------
+-- Check User Group --
+----------------------
+
+function GlobalPermissions.GetRank( ply )
+	if not IsValid(ply) then return end
+	
+	local customRank = hook.Run( "Permission.GetRank", ply )
+	if customRank~=nil then
+		return customRank
+	end
+	
+	-- ULX/SAM
+	if ulx or (sam and sam.permissions) then
+		return ply:GetUserGroup()
+	end
+	-- Exsto
+	if exsto and ply.GetRank then
+		return ply:GetRank()
+	end
+	-- Evolve
+	if ply.EV_GetRank then
+		return ply:EV_GetRank()
+	end
+	-- Serverguard
+	if serverguard and serverguard.player then
+		return serverguard.player:GetRank(ply).name
+	end
+	-- SAM
+	if SAM then
+	end
+	
+	
+	-- Failed: Give a best guess
+	return ply:GetUserGroup() or "user"
+end
+
+
 -------------------------------
 -- Default permission groups --
 -------------------------------
@@ -106,7 +151,7 @@ local GroupToULX
 function GlobalPermissions.GetULXPermissionGroup( perm )
 	if not perm then return ULib.ACCESS_SUPERADMIN end
 	
-	if not GroupToULX then -- Delayed so ULib can load
+	if not GroupToULX then -- Table setup is delayed so ULib can load
 		GroupToULX = {
 			[GlobalPermissions.GROUP_SUPERADMIN] = ULib and ULib.ACCESS_SUPERADMIN,
 			[GlobalPermissions.GROUP_ADMIN] = ULib and ULib.ACCESS_ADMIN,
@@ -125,6 +170,7 @@ local GroupToSAM = {
 function GlobalPermissions.GetSAMPermissionGroup( perm )
 	return GroupToSAM[ perm or "" ] or nil
 end
+
 
 ---------------
 -- On Loaded --

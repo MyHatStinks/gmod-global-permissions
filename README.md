@@ -9,6 +9,10 @@ If you want to use this script in your owna ddon, the first step is to copy it t
 
 As this is a shared script, make sure you `include()` and `AddCSLuaFile()` as you would any other shared file.
 
+### Checking a user's rank
+
+If you don't need to set up any fancy permissions and just want to see a player's rank in whatever moderation system is installed, you can use the function `GlobalPermissions.GetRank( Player ToCheck )`. If a compatible moderation system is installed this will return a string with the player's current rank.
+
 ### Setting up your permissions
 
 Global Permissions provides a simple system to load your custom permissions via the `Permission.OnLoad` hook and the `GlobalPermissions.SetupPermission( string PermissionName, enum DefaultGroup, string HelpText, string Category )` function. Permissions should be set up on both the client and the server.
@@ -90,3 +94,6 @@ If you have made a moderation system that isn't inherently supported by GlobalPe
 * `Permission.HasPermission`
 	* Arguments `Player ToCheck`, `string PermissionName`, `bool DefaultValue`.
 	* The permission string should exactly match the string in `Permission.SetUp`. You should return either `true` or `false` here, dependant on whether the user should have access to this permission.
+* `Permission.GetRank`
+	* Arguments `Player ToCheck`
+	* This hook should return the player's current role as a string.
