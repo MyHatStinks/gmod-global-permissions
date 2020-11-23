@@ -15,12 +15,15 @@
 -- Set up permissions --
 ------------------------
 
-hook.Add( "Initialize", "GlobalPermissions Example", function() --Short delay, to load after admin mods
-	if not (GlobalPermissions and GlobalPermissions.SetupPermission) then return end --Just in case
-	
-	-- GlobalPermissions.SetupPermission( "PermissionName", (DefaultGroup or nil), "Description", "Category" )
+-- Use the hook to make sure everything is already set up
+hook.Add( "Permission.OnLoad", "GlobalPermissions Example", function()
+	-- Set up a superadmin permission
 	GlobalPermissions.SetupPermission( "GlobalPermissions_SuperAdmin", GlobalPermissions.GROUP_SUPERADMIN, "Treat user as a superadmin!", "GlobalPermissions" )
+	
+	-- Set up an admin permission
 	GlobalPermissions.SetupPermission( "GlobalPermissions_Admin", GlobalPermissions.GROUP_ADMIN, "Treat user as an admin!", "GlobalPermissions" )
+	
+	-- Set up a user permission
 	GlobalPermissions.SetupPermission( "GlobalPermissions_User", GlobalPermissions.GROUP_ALL, "Treat user a user!", "GlobalPermissions" )
 end)
 
@@ -39,11 +42,19 @@ if SERVER then -- Permissions can also be checked client-side
 			hasPrinted = true
 		end
 		if GlobalPermissions.HasPermission( p, "GlobalPermissions_Admin", false ) then
-			p:ChatPrint("You are considered an admin!")
+			if hasPrinted then
+				p:ChatPrint("You are also considered an admin!")
+			else
+				p:ChatPrint("You are considered an admin!")
+			end
 			hasPrinted = true
 		end
 		if GlobalPermissions.HasPermission( p, "GlobalPermissions_User", false ) then
-			p:ChatPrint("You are considered a user!")
+			if hasPrinted then
+				p:ChatPrint("You are also considered a user!")
+			else
+				p:ChatPrint("You are considered a user!")
+			end
 			hasPrinted = true
 		end
 		
@@ -63,7 +74,7 @@ end
 -- This number will be incremented when a new permissions system is added
 -- Should help keep compatibility with other addons using this code
 -- Format YYYYMMDD.revision
-local version = 20201119.0
+local version = 20201123.0
 if GlobalPermissions and GlobalPermissions.Version>=version then return end -- Only overwrite if this is newer
 
 GlobalPermissions = GlobalPermissions or {}
@@ -171,3 +182,13 @@ local GroupToSAM = {
 function GlobalPermissions.GetSAMPermissionGroup( perm )
 	return GroupToSAM[ perm or "" ] or nil
 end
+
+---------------
+-- On Loaded --
+---------------
+
+hook.Add( "Initialize", "Permission.OnLoad", function() --Short delay, to load after admin mods
+	if not (GlobalPermissions and GlobalPermissions.SetupPermission) then return end --Just in case
+	
+	hook.Run( "Permission.OnLoad" )
+end)
